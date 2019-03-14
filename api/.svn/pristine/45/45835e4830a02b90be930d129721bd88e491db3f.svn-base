@@ -1,0 +1,172 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 位置判断
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Position extends Api
+{
+    private static $lng1="116.293365";
+    private static $lat1="40.040108";
+    //接值
+    public function getRules()
+    {
+        return array(
+            'work' => array(
+                'latitude' => array('name' => 'Latitude', 'require' => true,  'desc' => '纬度', 'type' => 'string', 'source' => 'post'),
+                'longitude' => array('name' => 'Longitude', 'require' => true,  'desc' => '经度', 'type' => 'string', 'source' => 'post'),
+                'open_id' => array('name' => 'openid', 'require' => true,  'desc' => '微信唯一标识', 'type' => 'string', 'source' => 'post'),
+            ),
+            'night' => array(
+                'open_id' => array('name' => 'openid', 'require' => true,  'desc' => '微信唯一标识', 'type' => 'string', 'source' => 'post'),
+            ),
+        );
+    }
+    //白班打卡
+    public function work()
+    {
+        $lat1=self::$lat1;
+        $lat2=$this->latitude;
+        $lng1=self::$lng1;
+        $lng2=$this->longitude;
+        $open_id=$this->open_id;
+        $url="http://works.ljdhz.com/?service=App.Login.GetInfoByOpen&open_id=".$open_id;
+        $info=$this->curl($url);
+        $info=json_decode($info,1)['data'];
+        if(empty($info)){
+            return "请您先认证";
+        }
+        $res=$this->distance($lng1,$lat1,$lng2,$lat2);
+        if ($res>0.1) {
+            return "签到失败,请您前往公司50米内打卡";
+        }
+        //是否请假
+        $url="http://works.ljdhz.com/?service=App.Leave.Leave_open";
+        $data=array(
+            'open_id'=>$open_id,
+            'time'=>time(),
+        );
+        $data=$this->curl($url,$data);
+        $data=json_decode($data,1)['data'];
+        if($data){
+            return "请假不能打卡";
+        }
+        $date=date("Y-m-d",time());
+        $day=date("w",strtotime($date));
+        $url="http://works.ljdhz.com/?service=App.Shifts.Shifts&day=".$day."&title=白";
+        $data=$this->curl($url);
+        $data=json_decode($data,1)['data'];
+        if(empty($data)){
+            return "今天是周".$day."不用上班哦";
+        }
+        $data=$data[0];
+        $curr_time = time();
+        $start = strtotime($date.$data['shifts_stime']);
+        $start1 = strtotime($date.$data['shifts_stime'])+$data['elastic_time']*60;
+
+        //上班打卡
+        $post=array(
+            'job_number'=>$info['job_number'],
+            'name'=>$info['name'],
+            'dateline'=>$date,
+            'sign_time'=>date("Y-m-d H:i:s",$curr_time),
+            'sign_status'=>"正常",
+            'section_id'=>$info['section_id'],
+            'type'=>0
+        );
+        $url="http://works.ljdhz.com/?service=App.CheckWork.Add";
+        $this->curl($url,$post);
+        return "打卡成功";
+        // if($curr_time >= $start && $curr_time <= $start1)
+        // {
+        //     $job_num=$info['job_number'];
+        //     $url="http://works.ljdhz.com/?service=App.CheckWork.FindWork&start_time=".$start."&end_time=".$start1."&job_number=".$job_num;
+        //     $res=$this->curl($url);
+        //     $res=json_decode($res,1)['data'];
+        //     if($res){
+        //         return "您已经签过到了";
+        //     }
+           
+        // }
+        // $end = strtotime($date.$data['shifts_etime']);
+        // $end1 = strtotime($date.$data['shifts_etime'])+$data['elastic_time']*60;
+        // //下班打卡
+        // if ($curr_time >= $end && $curr_time <= $end1) {
+        //     $job_num=$info['job_number'];
+        //     $url="http://works.ljdhz.com/?service=App.CheckWork.FindWork&start_time=".$end."&end_time=".$end1."&job_number=".$job_num;
+        //     $res=$this->curl($url);
+        //     $res=json_decode($res,1)['data'];
+        //     if($res){
+        //         return "您已经签过到了";
+        //     }
+        //     $post=array(
+        //         'job_number'=>$job_num,
+        //         'name'=>$info['name'],
+        //         'dateline'=>$date,
+        //         'sign_time'=>date("Y-m-d H:i:s",$curr_time),
+        //         'sign_status'=>"正常",
+        //         'section_id'=>$info['section_id'],
+        //         'type'=>0
+        //     );
+        //     $url="http://works.ljdhz.com/?service=App.CheckWork.Add";
+        //     $res=$this->curl($url,$post);
+        //     return "打卡成功-下班";
+        // }
+        // return "您的打卡时间已过,下次要注意";
+    }
+    //夜班打卡
+    public function night()
+    {
+        $open_id=$this->open_id;
+        $url="http://works.ljdhz.com/?service=App.Login.GetInfoByOpen&open_id=".$open_id;
+        $info=$this->curl($url);
+        $info=json_decode($info,1)['data'];
+        if(empty($info)){
+            return "请您先认证";
+        }
+        $url="http://works.ljdhz.com/?service=App.Shifts.Shifts";
+        $data=$this->curl($url);
+        $data=json_decode($data,1)['data'];
+        $content="您的班次为:\n";
+        foreach ($data as $key => $val) {
+            $content.=$val['shifts_title'].":".substr($val['shifts_stime'],-3)."-".substr($val['shifts_etime'],-3)."工作为:".$val['shifts_day']."\n";
+        }
+        return $content;
+    }
+    //根据经纬度计算距离
+    private function distance($lng1,$lat1,$lng2,$lat2)
+    {
+        //将角度转为弧度
+        $radLat1=deg2rad($lat1);
+        $radLat2=deg2rad($lat2);
+        $radLng1=deg2rad($lng1);
+        $radLng2=deg2rad($lng2);
+        $a=$radLat1-$radLat2;//两纬度之差,纬度<90
+        $b=$radLng1-$radLng2;//两经度之差纬度<180
+        $s=2*asin(sqrt(pow(sin($a/2),2)+cos($radLat1)*cos($radLat2)*pow(sin($b/2),2)))*6378.137;
+        return $s;
+    }
+     //curl函数
+     public function curl($url, $data = null)
+     {
+         $init = curl_init();
+         curl_setopt($init, CURLOPT_URL, $url);
+         curl_setopt($init, CURLOPT_RETURNTRANSFER, 1);
+         curl_setopt($init, CURLOPT_SSL_VERIFYPEER, false);
+         curl_setopt($init, CURLOPT_SSL_VERIFYHOST, false);
+ 
+         if ($data) {
+             curl_setopt($init, CURLOPT_POST, true);
+             curl_setopt($init, CURLOPT_POSTFIELDS, $data);
+         }
+         $result = curl_exec($init);
+         curl_close($init);
+         return $result;
+     }
+
+}

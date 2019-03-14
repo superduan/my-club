@@ -1,0 +1,28 @@
+<?php
+namespace App\Domain;
+
+use App\Model\Power as ModelPower;
+
+class Power {
+    //查询权限
+    public function get_power($uid){
+        //模型
+        $model = new ModelPower;
+        $res = $model->get_power($uid);
+        $res=$this->recursion($res);
+        return $res;
+    }
+    //无限极分类
+    public function recursion($data,$pid=0)
+    {
+        static $arr=array();
+        foreach($data as $key => $val){
+            if($val['power_pid']==$pid){
+                $arr[]=$val;
+                $this->recursion($data,$val['power_id']);
+         
+            }
+        }
+        return $arr;
+    }
+}

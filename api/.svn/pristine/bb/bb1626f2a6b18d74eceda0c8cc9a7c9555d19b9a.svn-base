@@ -1,0 +1,71 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use App\Domain\Login as DomainLogin;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 登录接口
+ */
+class Login extends Api {
+
+    public function getRules()
+    {
+        return [
+            'login'=>[
+                'job_number'=>['name'=>'job_number','require'=>true,'min'=>11,'max'=>11,'desc'=>'工号','source'=>'post'], 
+                'pwd'=>['name'=>'pwd','require'=>true,'min'=>1,'max'=>20,'desc'=>'密码','source'=>'post'], 
+            ],
+            'getInfo'=>[
+                'job_number'=>['name'=>'job_number','require'=>true,'min'=>11,'max'=>11,'desc'=>'工号'],
+            ],
+        ];
+    }
+
+    /**
+     * 登录
+     * @desc 传参数登录成功返回token
+     * @return int id 用户id
+     * @return string job_number 工号
+     * @return string token token32位
+     * @exception 401 参数传递错误
+     */
+    public function login(){
+        //组成数组
+        $data['job_number'] = $this->job_number;
+        $data['pwd'] = $this->pwd;
+
+        //D层
+        $domain = new DomainLogin();
+        $res = $domain->checkNamePwd($data)[0];
+        //判断登录成功
+        if (!$res) {
+            throw new BadRequestException('登录失败', 1);
+        }
+        //生成token
+        $token = md5('sign'.time().$res['id']);
+        //存入框架缓存
+        \PhalApi\DI()->cache->set($token,1, 43200);
+        //返回信息
+        $res['token'] = $token;
+        return $res;
+    }
+    /**
+     * 信息
+     * @desc 传参数成功返回信息
+     * @exception 401 参数传递错误
+     */
+    public function getInfo(){
+        //组成数组
+        $data['job_number'] = $this->job_number;
+
+        //D层
+        $domain = new DomainLogin();
+        $res = $domain->getInfo($data)[0];
+        //判断登录成功
+        if (!$res) {
+            throw new BadRequestException('登录失败', 1);
+        }
+        return $res;
+    }
+}

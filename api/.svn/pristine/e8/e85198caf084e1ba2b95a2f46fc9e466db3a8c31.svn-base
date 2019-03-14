@@ -1,0 +1,14 @@
+<?php
+namespace App\Domain;
+
+use App\Model\Leave as ModelLeave;
+
+class Leave {
+    //请假申请
+    public function app($data)
+    {
+        $model = new ModelLeave;
+        $res = $model->app($data);
+        return $res;
+    }
+}

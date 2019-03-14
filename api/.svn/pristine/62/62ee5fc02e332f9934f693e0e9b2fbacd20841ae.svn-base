@@ -1,0 +1,14 @@
+<?php
+namespace App\Domain;
+
+use App\Model\Section as ModelSection;
+
+
+class Section {
+    //添加入库
+    public function addData($data){
+        $model = new ModelSection;
+        $res = $model->insert($data);
+        return $res;
+    }
+}

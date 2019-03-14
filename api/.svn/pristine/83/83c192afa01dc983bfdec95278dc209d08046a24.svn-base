@@ -1,0 +1,21 @@
+<?php 
+namespace App\Model;
+
+use PhalApi\Model\NotORMModel as NotORM;
+
+class Login extends NotORM {
+    //获取表名
+    protected function getTableName($id)
+    {
+        return "user";
+    }
+
+    //查询名和密码
+    public function checkNamePwd($where){
+        $res = $this->getORM()
+            ->select('id','job_number')
+            ->where($where)
+            ->fetchOne();
+        return $res;
+    }
+}

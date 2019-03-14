@@ -1,0 +1,52 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 位置判断
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Position extends Api
+{
+    private static $lng1="116.293365";
+    private static $lat1="40.040108";
+    //接值
+    public function getRules()
+    {
+        return array(
+            'position' => array(
+                'latitude' => array('name' => 'Latitude', 'require' => true,  'desc' => '纬度', 'type' => 'string', 'source' => 'post'),
+                'longitude' => array('name' => 'Longitude', 'require' => true,  'desc' => '经度', 'type' => 'string', 'source' => 'post'),
+            ),
+        );
+    }
+    //判断位置
+    public function position()
+    {      
+           $lat1=self::$lat1;
+           $lat2=$this->latitude;
+           $lng1=self::$lng1;
+           $lng2=$this->longitude;
+           $res=$this->distance($lng1,$lat1,$lng2,$lat2);
+           if ($res>0.1) {
+               return "签到失败,请您前往6237打卡";
+           }
+           return "打卡成功";
+    }
+
+    private function distance($lng1,$lat1,$lng2,$lat2)//根据经纬度计算距离
+    {
+        //将角度转为弧度
+        $radLat1=deg2rad($lat1);
+        $radLat2=deg2rad($lat2);
+        $radLng1=deg2rad($lng1);
+        $radLng2=deg2rad($lng2);
+        $a=$radLat1-$radLat2;//两纬度之差,纬度<90
+        $b=$radLng1-$radLng2;//两经度之差纬度<180
+        $s=2*asin(sqrt(pow(sin($a/2),2)+cos($radLat1)*cos($radLat2)*pow(sin($b/2),2)))*6378.137;
+        return $s;
+    }
+}

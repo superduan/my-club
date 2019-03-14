@@ -1,0 +1,131 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use App\Domain\Section as DomainSection;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 部门接口
+ */
+class Section extends Api {
+    public function getRules(){
+        return [
+            'add'=>[
+                'name'=>['name'=>'name','type'=>'string','require'=>true,'min'=>1,'max'=>50,'desc'=>'部门名称','source'=>'post']
+            ],
+            'checkName'=>[
+                'name'=>['name'=>'name','type'=>'string','require'=>true,'min'=>1,'max'=>50,'desc'=>'部门名称']
+            ],
+            'getSectionById'=>[
+                'id'=>['name'=>'id','type'=>'int','min'=>1,'desc'=>'部门id'],
+                'page'=>['name'=>'page','type'=>'int','min'=>1,'desc'=>'当前页','default'=>1],
+                'size'=>['name'=>'size','type'=>'int','min'=>1,'desc'=>'每页显示条数','default'=>5],
+            ],
+            'getSection'=>[
+                'page'=>['name'=>'page','type'=>'int','min'=>1,'desc'=>'当前页','default'=>1],
+                'size'=>['name'=>'size','type'=>'int','min'=>1,'desc'=>'每页显示条数','default'=>5],
+            ],
+            'del'=>[
+                'id'=>['name'=>'id','type'=>'array','require'=>true,'format'=>'explode','min'=>1,'desc'=>'部门id(可传多个值","相隔)']
+            ],
+            'updateData'=>[
+                'id'=>['name'=>'id','type'=>'int','require'=>true,'min'=>1,'desc'=>'部门id'],
+                'name'=>['name'=>'name','type'=>'string','min'=>1,'desc'=>'部门名称','default'=>''],
+            ]
+        ];
+    }
+
+    /**
+     * 部门添加
+     * @desc传递数据 添加入库返回自增id
+     * @return int id 自增id
+     * @return string msg 描述
+     */
+    public function add(){
+        //添加数据
+        $data['name'] = $this->name;
+        //D层
+        $domain = new DomainSection;
+        $res['id'] = $domain->addData($data);
+        $res['msg'] = '添加成功';
+        return $res;
+    }
+
+    /**
+     * 验证部门名称
+     * @desc部门名称查询数据库是否存在
+     * @return int id 员工id
+     * @return string name 员工名称
+     * @return int section_id 部门id
+     * @return int sex 性别
+     * @return string job_number 工号
+     */
+    public function checkName(){
+        $data['name'] = $this->name;
+        $domain = new DomainSection;
+        $res = $domain->checkName($data);
+        return $res;
+    }
+
+    /**
+     * 获取部门成员
+     * @desc通过id获取部门成员
+     * @return int id 部门id
+     * @return string name 部门名称
+     */
+    public function getSectionById(){
+        $domain = new DomainSection;
+        $res = $domain->getSectionById($this->id,$this->page,$this->size);
+        return $res;
+    }
+
+    /**
+     * 获取部门列表
+     * @desc传递分页参数获取部门列表
+     *
+     * @return array items 部门列表id、name
+     * @return int total 部门总数
+     */
+    public function getSection(){
+        $domain = new DomainSection;
+        $res = $domain->getSection($this->page,$this->size);
+        return $res;
+    }
+
+    /**
+     * 部门删除
+     * @desc 通过id删除数据
+     *
+     * @return int total 删除总条数
+     * @return string msg 描述
+     * @exception 402 操作失败
+     */
+    public function del(){
+        $domain = new DomainSection;
+        $res = $domain->del($this->id);
+        if($res == 0){
+            throw new BadRequestException('操作失败',2);
+        }
+        $rs['total'] = $res;
+        $rs['msg'] = '删除成功';
+        return $rs;
+    }
+
+    /**
+     * 部门修改
+     * @desc 传部门id和需修改的值完成修改
+     * @return int total 影响数
+     * @return string msg 描述
+     * @exception 402 操作失败
+     */
+    public function updateData(){
+        $domain = new DomainSection;
+        $res = $domain->updateData($this->id,$this->name);
+        if($res == 0){
+            throw new BadRequestException('操作失败',2);
+        }
+        $rs['total'] = $res;
+        $rs['msg'] = '成功';
+        return $rs;
+    }
+}

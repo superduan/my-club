@@ -1,0 +1,35 @@
+<?php 
+namespace App\Model;
+
+use PhalApi\Model\NotORMModel as NotORM;
+
+class Shifts extends NotORM {
+     //获取表名
+     protected function getTableName($id)
+     {
+         return "shifts";
+     }
+     //获取主键
+    protected function getTableKey($id)
+    {
+        return "shifts_id";
+    }
+     //添加班次
+     public function shifts_add($data)
+     {
+         $orm = $this->getORM();
+         $orm->insert($data);
+        // 返回新增的ID（注意，这里不能使用连贯操作，因为要保持同一个ORM实例）
+        return $orm->insert_id();
+     }
+      //修改班次
+      public function upd($id,$data)
+      {
+         return $this->getORM()->where('shifts_id', "$id")->update($data);
+      }
+      //查询班次
+      public function shifts($day)
+      {
+        return $this->getORM()->select('*')->where('shifts_day LIKE ?',"%$day%")->fetch();
+      }
+}

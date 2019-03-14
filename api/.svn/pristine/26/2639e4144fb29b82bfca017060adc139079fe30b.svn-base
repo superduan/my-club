@@ -1,0 +1,115 @@
+2019-01-07 11:26:48|ERROR|App.Menu.Add|PDOException: Unknown column 'key' in 'field list' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(341): NotORM_Result->query('INSERT INTO kao...', Array)
+#1 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(358): NotORM_Result->insert_multi(Array)
+#2 E:\kaoqin2\vendor\phalapi\kernal\src\Model\NotORMModel.php(42): NotORM_Result->insert(Array)
+#3 E:\kaoqin2\src\app\Domain\Menu.php(18): PhalApi\Model\NotORMModel->insert(Array)
+#4 E:\kaoqin2\src\app\Api\Menu.php(59): App\Domain\Menu->addData(Array)
+#5 [internal function]: App\Api\Menu->add()
+#6 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#7 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#8 {main}
+2019-01-07 11:26:59|ERROR|App.Menu.Add|PDOException: Unknown column 'key' in 'field list' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(341): NotORM_Result->query('INSERT INTO kao...', Array)
+#1 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(358): NotORM_Result->insert_multi(Array)
+#2 E:\kaoqin2\vendor\phalapi\kernal\src\Model\NotORMModel.php(42): NotORM_Result->insert(Array)
+#3 E:\kaoqin2\src\app\Domain\Menu.php(18): PhalApi\Model\NotORMModel->insert(Array)
+#4 E:\kaoqin2\src\app\Api\Menu.php(59): App\Domain\Menu->addData(Array)
+#5 [internal function]: App\Api\Menu->add()
+#6 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#7 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#8 {main}
+2019-01-07 11:27:30|ERROR|App.Menu.UpdateData|PDOException: Unknown column 'key' in 'field list' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(412): NotORM_Result->query('UPDATE kaoqin_m...', Array)
+#1 E:\kaoqin2\vendor\phalapi\kernal\src\Model\NotORMModel.php(53): NotORM_Result->update(Array)
+#2 E:\kaoqin2\src\app\Domain\Menu.php(48): PhalApi\Model\NotORMModel->update(1, Array)
+#3 E:\kaoqin2\src\app\Api\Menu.php(115): App\Domain\Menu->updateData(1, Array)
+#4 [internal function]: App\Api\Menu->updateData()
+#5 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#6 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#7 {main}
+2019-01-07 11:27:37|ERROR|App.Menu.UpdateData|PDOException: Unknown column 'key' in 'field list' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(412): NotORM_Result->query('UPDATE kaoqin_m...', Array)
+#1 E:\kaoqin2\vendor\phalapi\kernal\src\Model\NotORMModel.php(53): NotORM_Result->update(Array)
+#2 E:\kaoqin2\src\app\Domain\Menu.php(48): PhalApi\Model\NotORMModel->update(1, Array)
+#3 E:\kaoqin2\src\app\Api\Menu.php(115): App\Domain\Menu->updateData(1, Array)
+#4 [internal function]: App\Api\Menu->updateData()
+#5 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#6 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#7 {main}
+2019-01-07 11:27:39|ERROR|App.Menu.UpdateData|PDOException: Unknown column 'key' in 'field list' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(412): NotORM_Result->query('UPDATE kaoqin_m...', Array)
+#1 E:\kaoqin2\vendor\phalapi\kernal\src\Model\NotORMModel.php(53): NotORM_Result->update(Array)
+#2 E:\kaoqin2\src\app\Domain\Menu.php(48): PhalApi\Model\NotORMModel->update(1, Array)
+#3 E:\kaoqin2\src\app\Api\Menu.php(115): App\Domain\Menu->updateData(1, Array)
+#4 [internal function]: App\Api\Menu->updateData()
+#5 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#6 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#7 {main}
+2019-01-07 11:28:03|ERROR|App.Menu.UpdateData|PDOException: Unknown column 'key' in 'field list' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(412): NotORM_Result->query('UPDATE kaoqin_m...', Array)
+#1 E:\kaoqin2\vendor\phalapi\kernal\src\Model\NotORMModel.php(53): NotORM_Result->update(Array)
+#2 E:\kaoqin2\src\app\Domain\Menu.php(48): PhalApi\Model\NotORMModel->update(1, Array)
+#3 E:\kaoqin2\src\app\Api\Menu.php(115): App\Domain\Menu->updateData(1, Array)
+#4 [internal function]: App\Api\Menu->updateData()
+#5 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#6 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#7 {main}
+2019-01-07 11:28:07|ERROR|App.Menu.UpdateData|PDOException: Unknown column 'key' in 'field list' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(412): NotORM_Result->query('UPDATE kaoqin_m...', Array)
+#1 E:\kaoqin2\vendor\phalapi\kernal\src\Model\NotORMModel.php(53): NotORM_Result->update(Array)
+#2 E:\kaoqin2\src\app\Domain\Menu.php(48): PhalApi\Model\NotORMModel->update(1, Array)
+#3 E:\kaoqin2\src\app\Api\Menu.php(115): App\Domain\Menu->updateData(1, Array)
+#4 [internal function]: App\Api\Menu->updateData()
+#5 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#6 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#7 {main}
+2019-01-07 11:28:10|ERROR|App.Menu.UpdateData|PDOException: Unknown column 'key' in 'field list' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(412): NotORM_Result->query('UPDATE kaoqin_m...', Array)
+#1 E:\kaoqin2\vendor\phalapi\kernal\src\Model\NotORMModel.php(53): NotORM_Result->update(Array)
+#2 E:\kaoqin2\src\app\Domain\Menu.php(48): PhalApi\Model\NotORMModel->update(1, Array)
+#3 E:\kaoqin2\src\app\Api\Menu.php(115): App\Domain\Menu->updateData(1, Array)
+#4 [internal function]: App\Api\Menu->updateData()
+#5 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#6 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#7 {main}
+2019-01-07 11:32:37|ERROR|App.Leave.Leave|PDOException: Unknown column 'app_time' in 'field list' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(341): NotORM_Result->query('INSERT INTO kao...', Array)
+#1 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(358): NotORM_Result->insert_multi(Array)
+#2 E:\kaoqin2\src\app\Model\Leave.php(16): NotORM_Result->insert(Array)
+#3 E:\kaoqin2\src\app\Domain\Leave.php(11): App\Model\Leave->app(Array)
+#4 E:\kaoqin2\src\app\Api\Leave.php(64): App\Domain\Leave->app(Array)
+#5 [internal function]: App\Api\Leave->leave()
+#6 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#7 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#8 {main}
+2019-01-07 11:35:12|ERROR|App.Leave.Get_leave|PDOException: Unknown column 'id' in 'order clause' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(813): NotORM_Result->query('SELECT * FROM k...', Array)
+#1 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(898): NotORM_Result->execute()
+#2 E:\kaoqin2\src\app\Model\Leave.php(28): NotORM_Result->fetchAll()
+#3 E:\kaoqin2\src\app\Domain\Leave.php(41): App\Model\Leave->get_leave(1)
+#4 E:\kaoqin2\src\app\Api\Leave.php(117): App\Domain\Leave->get_leave(1)
+#5 [internal function]: App\Api\Leave->get_leave()
+#6 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#7 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#8 {main}
+2019-01-07 11:37:50|ERROR|App.Leave.Leave_upd|PDOException: Unknown column 'id' in 'where clause' in E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(813): NotORM_Result->query('SELECT * FROM k...', Array)
+#1 E:\kaoqin2\vendor\phalapi\notorm\src\NotORM\Result.php(859): NotORM_Result->execute()
+#2 E:\kaoqin2\vendor\phalapi\kernal\src\Model\NotORMModel.php(31): NotORM_Result->fetch()
+#3 E:\kaoqin2\src\app\Domain\Leave.php(23): PhalApi\Model\NotORMModel->get(1)
+#4 E:\kaoqin2\src\app\Api\Leave.php(89): App\Domain\Leave->upd(1, Array)
+#5 [internal function]: App\Api\Leave->leave_upd()
+#6 E:\kaoqin2\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#7 E:\kaoqin2\public\index.php(9): PhalApi\PhalApi->response()
+#8 {main}

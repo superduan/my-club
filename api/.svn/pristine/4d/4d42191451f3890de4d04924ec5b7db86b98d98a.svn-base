@@ -1,0 +1,55 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+use App\Domain\Shifts as DomainShifts;
+/**
+ * 班次接口
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Shifts extends Api
+{
+    public function getRules()
+    {
+        return array(
+            'shifts_add' => array(
+                'shifts_title' => array('name' => 'shifts_title','format' => 'utf8','desc'=>'班次名称','require' => true,  'source' => 'post'),
+                'shifts_stime' => array('name' => 'shifts_stime', 'require' => true,  'desc' => '上班打卡时间', 'type' => 'string', 'source' => 'post'),
+                'shifts_etime'=>array('name'=>'shifts_etime','desc'=>'下班打卡时间','require'=>true,'type'=>'string','source' => 'post'),
+                'shifts_desc'=>array('name'=>'shifts_desc','desc'=>'班次描述','require'=>true,'type'=>'string','source' => 'post'),
+                'shifts_day'=> array('name' => 'shifts_day', 'require' => true,  'desc' => '工作日', 'source' => 'post'),
+                'elastic_time' => array('name' => 'elastic_time','desc'=>'弹性时间','require' => true,  'source' => 'post'),
+                'shifts_role' => array('name' => 'shifts_role','desc'=>'作用角色','require' => true,  'source' => 'post','type'=>'int'),
+            ),
+           
+        );
+    }
+
+    /**
+     * 班次添加
+     * @desc 班次添加
+     * @return jsonp success ok
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+
+    public function shifts_add()
+    {
+        $data=array(
+            'shifts_title'=>$this->shifts_title,
+            'shifts_stime'=>$this->shifts_stime,
+            'shifts_etime'=>$this->shifts_etime,
+            'shifts_desc'=>$this->shifts_desc,
+            'shifts_day'=>$this->shifts_day,
+            'elastic_time'=>$this->elastic_time,
+            'shifts_role'=>$this->shifts_role,
+        );
+        $dn = new DomainShifts();
+        $res = $dn->shifts_add($data);
+        return $res;
+    }
+
+}

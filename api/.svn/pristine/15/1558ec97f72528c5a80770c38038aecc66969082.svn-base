@@ -1,0 +1,60 @@
+<?php
+namespace App\Api;
+
+use App\Api\Common;
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+use App\Domain\Power as DomainPower;
+/**
+ * 权限查询接口
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Power extends Api {
+    
+    public function getRules() {
+        return array(
+            'power'=>array(
+                'uid'   => array('name' => 'uid', 'require' => true, 'min' => 1, 'max' => '20', 'desc' => '用户id','type'=>'int'),
+                'Token' => array('name' => 'Token', 'require' => true, 'min' => 32,'max'=>'32', 'desc' => '内容'),
+            ),
+            'power_add'=>array(
+                'power_name'    =>  array('name'=>'power_name','require'=>true,'format' => 'utf8','min'=>1,'max'=>'6','desc'=>'权限名','source' => 'post'),
+                'power_desc'    =>  array('name'=>'power_desc','require'=>true,'format' => 'utf8','min'=>1,'max'=>'30','desc'=>'权限描述','source' => 'post'),
+                'power_pid'     =>  array('name'=>'power_pid','require'=>true,'min'=>1,'max'=>'5','desc'=>'父id','source' => 'post'),
+                'controller'    =>  array('name'=>'controller','require'=>true,'min'=>1,'max'=>'15','desc'=>'控制器名','source' => 'post'),
+                'action'        =>  array('name'=>'action','require'=>true,'min'=>1,'max'=>'15','desc'=>'方法名','source' => 'post'),
+                'level'         =>  array('name'=>'level','require'=>true,'min'=>1,'max'=>'6','desc'=>'等级','source' => 'post'),
+            ),
+        );
+    }
+
+    /**
+     * 获取权限列表
+     * @desc 获取权限列表
+     * @return int uid 用户id
+     * @return string Token 验证用户登录的唯一标识
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+
+    public function power()
+    {
+        $uid=$this->uid;
+        $Token=$this->Token;
+        $token = \PhalApi\DI()->cache->get('Token');
+        if($Token!=$token){
+            throw new BadRequestException('请您先登录,Token失效', 1);
+        }
+        $uid=1;
+        $dn=new DomainPower();
+        $reg=$dn->get_power($uid);
+        return $reg;
+    }
+
+    public function power_add()
+    {
+        
+    }
+}

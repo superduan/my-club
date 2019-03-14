@@ -1,0 +1,27 @@
+<?php
+namespace App\Domain;
+
+use App\Model\Leave as ModelLeave;
+
+class Leave {
+    //请假申请
+    public function app($data)
+    {
+        $model = new ModelLeave;
+        $res = $model->app($data);
+        return $res;
+    }
+    //修改请假
+    public function upd($id,$data)
+    {
+        foreach($data as $key => $val){
+            if(empty($val)){
+                unset($data[$key]);
+            }
+        }
+        return $data;
+        $model=new ModelLeave;
+        $res=$model->upd($id,$data);
+        return $res;
+    }
+}

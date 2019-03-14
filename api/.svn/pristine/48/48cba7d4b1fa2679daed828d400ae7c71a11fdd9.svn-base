@@ -1,0 +1,189 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+use App\Domain\Leave as DomainLeave;
+/**
+ * 请假接口
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Leave extends Api
+{
+    public function getRules()
+    {
+        return array(
+            'leave' => array(
+                'content'=>array('name' => 'content','format' => 'utf8','desc'=>'请假原因','require' => true,  'source' => 'post'),
+                'app_user' => array('name' => 'app_user','format' => 'utf8','desc'=>'角色名','require' => true,  'source' => 'post'),
+                'section_id' => array('name' => 'section_id', 'require' => true,  'desc' => '部门id','min'=>1, 'type' => 'int', 'source' => 'post'),
+                'start_time'=>array('name'=>'start_time','desc'=>'开始时间','require'=>true,'type'=>'date','source' => 'post'),
+                'end_time'=>array('name'=>'end_time','desc'=>'结束时间','require'=>true,'type'=>'date','source' => 'post'),
+                'user_id'=> array('name' => 'user_id', 'require' => true,  'desc' => '用户id','min'=>1,'type' => 'int', 'source' => 'post'),
+                'open_id'=> array('name' => 'open_id',  'desc' => '微信open_id','type' => 'string', 'source' => 'post'),
+            ),
+            'leave_upd'=>array(
+                'content'=>array('name' => 'content','format' => 'utf8','desc'=>'请假原因',  'source' => 'post','default'=>''),
+                'app_user' => array('name' => 'app_user','format' => 'utf8','desc'=>'角色名', 'source' => 'post','default'=>''),
+                'section_id' => array('name' => 'section_id',   'desc' => '部门id', 'type' => 'int', 'source' => 'post','default'=>''),
+                'start_time'=>array('name'=>'start_time','desc'=>'开始时间','type'=>'date','source' => 'post','default'=>''),
+                'end_time'=>array('name'=>'end_time','desc'=>'结束时间','type'=>'date','source' => 'post','default'=>''),
+                'user_id'=> array('name' => 'user_id',   'desc' => '用户id','type' => 'int', 'source' => 'post','default'=>''),
+                'status'=>array('name' => 'status',   'desc' => '审核状态','type' => 'int', 'source' => 'post','default'=>''),
+                'leave_id'=> array('name' => 'leave_id', 'require' => true,  'desc' => '请假id','type' => 'int', 'source' => 'post','default'=>''),
+            ),
+            'leave_del'=>array(
+                'del_id'   => array('name' => 'del_id', 'require' => true,'format'=>'explode', 'desc' => '请假id(可用逗号隔开多个值)','type'=>'array'),
+            ),
+            'get_leave' => array(
+                'user_id'=> array('name' => 'user_id', 'require' => true,  'desc' => '用户id','min'=>1,'type' => 'int', 'source' => 'post'),
+            ),
+            'leave_open' => array(
+                'open_id'=> array('name' => 'open_id', 'require' => true,  'desc' => 'open_id','min'=>1,'type' => 'string', 'source' => 'post'),
+                'time'=> array('name' => 'time', 'require' => true,  'desc' => '时间','min'=>1,'type' => 'int', 'source' => 'post'),
+            ),
+            'leave_info'=>array(
+                'user_id'   => array('name' => 'user_id', 'require' => true, 'desc' => '个人id','type'=>'int'),
+            ),
+        );
+    }
+
+    /**
+     * 请假申请
+     * @desc 请假申请
+     * @return jsonp success ok
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+
+    public function leave()
+    {
+        $data=array(
+            'app_user'=>$this->app_user,
+            'section_id'=>$this->section_id,
+            'start_time'=>$this->start_time,
+            'end_time'=>$this->end_time,
+            'user_id'=>$this->user_id,
+            'content'=>$this->content,
+            'app_time'=>time(),
+            'open_id'=>$this->open_id,
+        );
+        $dn = new DomainLeave();
+        $res = $dn->app($data);
+        return $res;
+    }
+
+     /**
+     * 请假修改
+     * @desc 请假修改，审核通过的请假不能修改
+     * @return jsonp   修改成功影响行数
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+
+    public function leave_upd()
+    {
+        $upd_id=$this->leave_id;
+        $data=array(
+            'content'=>$this->content,
+            'app_user'=>$this->app_user,
+            'section_id'=>$this->section_id,
+            'start_time'=>$this->start_time,
+            'end_time'=>$this->end_time,
+            'user_id'=>$this->user_id,
+            'app_time'=>time(),
+            'status'=>$this->status,
+        );
+        $dn = new DomainLeave();
+        $res = $dn->upd($upd_id,$data);
+        return $res;
+    }
+     /**
+     * 请假删除
+     * @desc 请假删除
+     * @return jsonp 删除影响行数
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+    public function leave_del()
+    {
+        $id=$this->del_id;
+        $dn=new DomainLeave();
+        $reg=$dn->del($id);
+        return $reg;
+    }
+     /**
+     * 个人请假列表
+     * @desc 个人请假列表
+     * @return jsonp 个人请假列表数据
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+    public function get_leave()
+    {
+        $id=$this->user_id;
+        $dn=new DomainLeave();
+        $reg=$dn->get_leave($id);
+        return $reg;
+    }
+
+     /**
+     * 已审核请假列表
+     * @desc 已审核请假列表
+     * @return jsonp 已审核请假列表数据
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+    public function audited()
+    {
+        $dn=new DomainLeave();
+        $reg=$dn->audited();
+        return $reg;
+    }
+
+     /**
+     * 未审核请假列表
+     * @desc 未审核请假列表
+     * @return jsonp 未审核请假列表数据
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+    public function unaudited()
+    {
+        $dn=new DomainLeave();
+        $reg=$dn->unaudited();
+        return $reg;
+    }
+     /**
+     * 通过open查看是否请假
+     * @desc 通过open查看是否请假
+     * @return jsonp 通过open查看是否请假
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+    public function leave_open()
+    {
+        $open_id=$this->open_id;
+        $time=$this->time;
+        $time=date("Y-m-d",$time);
+        $dn=new DomainLeave();
+        $reg=$dn->open($open_id,$time);
+        return $reg;
+    }
+     /**
+     * 个人请假列表
+     * @desc 个人请假列表
+     * @return jsonp 个人请假列表
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+    public function leave_info()
+    {
+        $user_id=$this->user_id;
+        $dn=new DomainLeave();
+        $reg=$dn->info($user_id);
+        return $reg;
+    }
+}

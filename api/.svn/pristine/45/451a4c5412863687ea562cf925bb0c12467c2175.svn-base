@@ -1,0 +1,54 @@
+<?php
+namespace App\Domain;
+
+use App\Model\Section as ModelSection;
+use App\Model\User as ModelUser;
+
+
+class Section {
+    //添加入库
+    public function addData($data){
+        $model = new ModelSection;
+        $res = $model->insert($data);
+        return $res;
+    }
+
+    //验证用户名
+    public function checkName($data){
+        $model = new ModelSection;
+        $res = $model->checkName($data);
+        return $res;
+    }
+
+    //通过id获取部门
+    public function getSectionById($id){
+        $model = new ModelUser;
+        $res = $model->getInfoBySectionId($id);
+        return $res;
+    }
+
+    //获取活动列表
+    public function getSection($page,$size){
+        $model = new ModelSection;
+        $rs['items'] = $model->getSectionItems($page,$size);
+        $rs['total'] = $model->getSectionTotal();
+        return $rs;
+    }
+
+    //部门删除
+    public function del($id){
+        $model = new ModelSection;
+        $res = $model->delete($id);
+        return $res;
+    }
+
+    //通过id更新数据
+    public function updateData($id,$name){
+        if(!empty($name)){
+            $data['name'] = $name;
+        }
+        $model = new ModelSection;
+        $res = $model->update($id,$data);
+        return $res;
+    }
+}

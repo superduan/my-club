@@ -1,0 +1,55 @@
+<?php
+namespace App\Model;
+
+use PhalApi\Model\NotORMModel as NotORM;
+
+class User extends NotORM {
+    //设置表名
+    protected function getTableName($id)
+    {
+        return "user";
+    }
+
+    //通过部门id获取成员
+    public function getInfoBySectionId($id,$page,$size){
+        $res = $this->getORM()
+            ->select('id','name','section_id','sex','job_number')
+            ->where(['section_id'=>$id])
+            ->limit(($page-1)*$size,$size)
+            ->fetchAll();
+        return $res;
+    }
+
+    //通过部门id获取成员
+    public function getInfoTotal($id){
+        $res = $this->getORM()
+            ->where(['section_id'=>$id])
+            ->count();
+        return $res;
+    }
+
+    //验证员工手机号
+    public function checkPhone($phone){
+        $res = $this->getORM()
+            ->where(['phone'=>$phone])
+            ->select('id')
+            ->fetchOne();
+        return $res;
+    }
+
+    //查询员工列表
+    public function getUserItems($page,$size,$select){
+        $res = $this->getORM()
+            ->select($select)
+            ->limit(($page-1)*$size,$size)
+            ->fetchAll();
+        return $res;
+    }
+
+    //查询员工列表总数
+    public function getUserTotal(){
+        $res = $this->getORM()
+            ->count();
+        return $res;
+    }
+}

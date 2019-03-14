@@ -1,0 +1,40 @@
+<?php
+namespace App\Domain;
+
+use App\Model\CheckWork as ModelCheckWork;
+use PhalApi\Exception\BadRequestException;
+
+
+class CheckWork {
+    //添加入库
+    public function addData($data){
+        $model = new ModelCheckWork;
+        $res = $model->insert($data);
+        return $res;
+    }
+
+
+    //获取签到列表
+    public function findInfo($data){
+        $data['select'] = implode(',',$data['select']);
+        $model = new ModelCheckWork;
+        $rs['items'] = $model->findInfoItems($data);
+        $rs['total'] = $model->findInfoTotal($data);
+        return $rs;
+    }
+
+    //获取签到大概
+    public function getInfo($data){
+        $model = new ModelCheckWork;
+        $arr= $model->getInfoItems($data);
+        foreach($arr as &$val){
+            $info = $model->getInfoDatail($val['job_number'],$val['dat'],$val['section_id']);
+            foreach($info as $v){
+                $val[$v['sign_status']] = $v['count(sign_status)'];
+            }
+        }
+        $rs['items'] = $arr;
+        $rs['total'] = count($arr);
+        return $rs;
+    }
+}

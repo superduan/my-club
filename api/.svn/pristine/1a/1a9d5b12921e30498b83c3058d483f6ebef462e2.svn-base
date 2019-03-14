@@ -1,0 +1,348 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 微信开发接口
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Wechat extends Api
+{
+    //接入微信公众平台
+    public function index()
+    {
+        $echostr=$_GET["echostr"];
+        if (!$echostr) {
+            //$this->response();
+            $this->makemenu();
+            $this->responseMsg();
+        }
+        //file_put_contents('1.txt',111);
+        $token=\PhalApi\DI()->config->get('app.wechat.token');
+        //接收微信服务器传来的值
+        $signature=$_GET["signature"];
+        $timestamp=$_GET["timestamp"];
+        $nonce=$_GET["nonce"];
+        //按照微信平台方法运算
+        $tmpArr = array($timestamp,$token, $nonce);
+        sort($tmpArr, SORT_STRING);
+        $tmpStr = implode( $tmpArr );
+        $tmpStr = sha1( $tmpStr );
+        //file_put_contents('1.txt',$tmpStr);
+        //file_put_contents('2.txt',$signature);
+        if( $signature==$tmpStr ){
+            echo $echostr;
+        }else{
+            //echo $echostr;
+            return false;
+        }
+    }
+    //curl函数
+    public function curl($url, $data = null)
+    {
+        $init = curl_init();
+        curl_setopt($init, CURLOPT_URL, $url);
+        curl_setopt($init, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($init, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($init, CURLOPT_SSL_VERIFYHOST, false);
+
+        if ($data) {
+            curl_setopt($init, CURLOPT_POST, true);
+            curl_setopt($init, CURLOPT_POSTFIELDS, $data);
+        }
+        $result = curl_exec($init);
+        curl_close($init);
+        return $result;
+    }
+    //获取微信accesstoken
+    public function getaccesstoken(){
+        $access_token = \PhalApi\DI()->cache->get('access_token');
+        if ($access_token) {
+            return $access_token;
+        }else{
+            $appid = \PhalApi\DI()->config->get('app.wechat.appid');
+            $appsecret = \PhalApi\DI()->config->get('app.wechat.appsecret');
+            $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=$appid&secret=$appsecret";
+            $data = $this->curl($url);
+            $data = json_decode($data,true);
+            $access_token = $data['access_token'];
+            \PhalApi\DI()->cache->set("access_token",$access_token, 60*60);
+            if ($access_token) {
+                return $access_token;
+            }else{
+                return false;
+            }
+        }
+    }
+    //生成菜单
+    public function makemenu()
+    {
+        $access_token = $this->getaccesstoken();
+        $url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=".$access_token;
+        $menu = <<<MENU
+        {
+            "button": [
+                {
+                    "id": "1",
+                    "name": "今日打卡",
+                    "type": "click",
+                    "key": "BAOKUGO_KAZIGI",
+                    "pid": "0",
+                    "level": 1,
+                    "sub_button": [
+                        {
+                            "id": "4",
+                            "name": "白班打卡",
+                            "type": "click",
+                            "key": "BAI",
+                            "pid": "2",
+                            "level": 2
+                        },
+                        {
+                            "id": "4",
+                            "name": "加班打卡",
+                            "type": "click",
+                            "key": "YE",
+                            "pid": "2",
+                            "level": 2
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "name": "菜单",
+                    "type": "click",
+                    "key": "MENU",
+                    "pid": "0",
+                    "level": 1,
+                    "sub_button": [
+                        {
+                            "id": "4",
+                            "name": "申请认证",
+                            "type": "click",
+                            "key": "BAOKUGO",
+                            "pid": "2",
+                            "level": 2
+                        },
+                        {
+                            "id": "5",
+                            "name": "搜索",
+                            "type": "view",
+                            "url": "https://www.baidu.com/",
+                            "pid": "2",
+                            "level": 2
+                        }
+                    ]
+                },
+                {
+                    "id": "6",
+                    "name": "今日歌曲",
+                    "type": "click",
+                    "key": "123",
+                    "pid": "0",
+                    "level": 1,
+                    "sub_button": []
+                }
+            ]
+        }
+MENU;
+        $data = $this->curl($url,$menu);
+        echo $data;
+        //print_r($data);
+    }
+
+    //消息类型
+    public function responseMsg()
+    {
+        $postStr = file_get_contents("php://input");
+        
+        if (!empty($postStr)){
+            $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+            $RX_TYPE = trim($postObj->MsgType);
+            //$open_id = $postObj->FromUserName;
+            //file_put_contents('2.txt',$open_id);
+            //用户发送的消息类型判断
+            switch ($RX_TYPE)
+            {
+                case 'event':
+                //判断具体的时间类型（关注、取消、点击）
+                $event = $postObj->Event;
+                if ($event=='subscribe') { // 关注事件
+                    //查看用户是否首次关注
+                    $content = '欢迎关注!';
+                    if(isset($postObj->EventKey)) {
+                            // 扫特定二维码关注会携带相对应的参数，具体见下一篇
+                    }
+
+                    }elseif ($event=='CLICK') {//菜单点击事件
+                        switch ($postObj->EventKey) {
+                            case 'BAOKUGO':
+                                $result = $this->receiveText($postObj);
+                                break;
+                            case 'BAI':
+                                $data=\PhalApi\DI()->cache->get($postObj->FromUserName);
+                                file_put_contents('1.txt',$data);
+                                $data=json_decode($data,1);
+                                $position=array(
+                                    'Latitude'=>$data['Latitude'][0],
+                                    'Longitude'=>$data['Longitude'][0],
+                                    'openid'=>$postObj->FromUserName,
+                                );
+                                //file_put_contents('2.txt',$position);
+                                $url="http://works.ljdhz.com/?service=App.Position.Work";
+                                file_put_contents('2.txt',111);
+                                $info=$this->curl($url,$position);
+                                file_put_contents('2.txt',$info);
+                                $msg=json_decode($info,true)['data'];
+                                $result=$this->transmitText($postObj,$msg);
+                                break;
+                            case 'YE':
+                                $data=\PhalApi\DI()->cache->get($postObj->FromUserName);
+                                $data=json_decode($data,1);
+                                $position=array(
+                                    'Latitude'=>$data['Latitude'][0],
+                                    'Longitude'=>$data['Longitude'][0],
+                                    'openid'=>$postObj->FromUserName,
+                                );
+                                //file_put_contents('2.txt',$position);
+                                $url="http://works.ljdhz.com/?service=App.Position.Night";
+                                $info=$this->curl($url,$position);
+                                //file_put_contents('2.txt',$info);
+                                $msg=json_decode($info,true)['data'];
+                                $result=$this->transmitText($postObj,$msg);
+                                break;
+                            default:
+                                
+                                break;
+                        }
+                    }elseif ($event=='VIEW') {//连接跳转事件
+
+                    }elseif ($event=='LOCATION') {//进入公众号事件
+                        //获取经纬度
+                        $Latitude=$postObj->Latitude;
+                        //file_put_contents('1.txt',$Latitude);
+                        $Longitude=$postObj->Longitude;
+                        $data=array(
+                            'Latitude'=>$Latitude,
+                            'Longitude'=>$Longitude
+                        );
+                        $data=json_encode($data);
+                        \PhalApi\DI()->cache->set($postObj->FromUserName,$data, 43200);
+                    }
+                    break;
+
+                case "text":    //文本消息
+                    $result = $this->receiveText($postObj);
+                    break;
+                case "image":   //图片消息
+                    $result = $this->receiveImage($postObj);
+                    break;
+                case "voice":   //语音消息
+                    $result = $this->receiveVoice($postObj);
+                    break;
+                case "video":   //视频消息
+                    $result = $this->receiveVideo($postObj);
+                    break;
+                case "location"://位置消息
+                    $result = $this->receiveLocation($postObj);
+                    break;
+                case "link":    //链接消息
+                    $result = $this->receiveLink($postObj);
+                    break;
+                default:
+                    $result = "unknow msg type: ".$RX_TYPE;
+                    break;
+            }
+            echo $result;
+        }else {
+            echo "";
+            exit;
+        }
+    }
+
+    private function receiveText($object)
+    {
+        $msg = $object->Content;
+        switch ($msg) {
+            case '1':
+                $content="666666";
+                break;
+            
+            default:
+                $open_id=$object->FromUserName;
+                $content="http://works.ljdhz.com:8087/index/wechat/personal?openid=".$open_id;
+                break;
+        }
+        $result = $this->transmitText($object, $content);
+        return $result;
+    }
+
+    /*
+     * 接收图片消息
+     */
+    private function receiveImage($object)
+    {
+        $content = "你发送的是图片，地址为：".$object->PicUrl;
+        $result = $this->transmitText($object, $content);
+        return $result;
+    }
+
+    /*
+     * 接收语音消息
+     */
+    private function receiveVoice($object)
+    {
+        $content = "你发送的是语音，媒体ID为：".$object->MediaId;
+        $result = $this->transmitText($object, $content);
+        return $result;
+    }
+
+    /*
+     * 接收视频消息
+     */
+    private function receiveVideo($object)
+    {
+        $content = "你发送的是视频，媒体ID为：".$object->MediaId;
+        $result = $this->transmitText($object, $content);
+        return $result;
+    }
+
+    /*
+     * 接收位置消息
+     */
+    private function receiveLocation($object)
+    {
+        $content = "你发送的是位置，纬度为：".$object->Location_X."；经度为：".$object->Location_Y."；缩放级别为：".$object->Scale."；位置为：".$object->Label;
+        $result = $this->transmitText($object, $content);
+        return $result;
+    }
+
+    /*
+     * 接收链接消息
+     */
+    private function receiveLink($object)
+    {
+        $content = "你发送的是链接，标题为：".$object->Title."；内容为：".$object->Description."；链接地址为：".$object->Url;
+        $result = $this->transmitText($object, $content);
+        return $result;
+    }
+
+    /*
+     * 回复文本消息
+     */
+    private function transmitText($object, $content)
+    {
+        $textTpl = "<xml>
+        <ToUserName><![CDATA[%s]]></ToUserName>
+        <FromUserName><![CDATA[%s]]></FromUserName>
+        <CreateTime>%s</CreateTime>
+        <MsgType><![CDATA[text]]></MsgType>
+        <Content><![CDATA[%s]]></Content>
+        </xml>";
+        $result = sprintf($textTpl, $object->FromUserName, $object->ToUserName, time(), $content);
+        return $result;
+    }          
+}

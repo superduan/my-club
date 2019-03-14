@@ -1,0 +1,22 @@
+2018-12-29 08:06:14|ERROR|App.Power.get_upd|PDOException: Unknown column 'id' in 'where clause' in D:\web\PHPTutorial\WWW\api\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 D:\web\PHPTutorial\WWW\api\vendor\phalapi\notorm\src\NotORM\Result.php(813): NotORM_Result->query('SELECT * FROM k...', Array)
+#1 D:\web\PHPTutorial\WWW\api\vendor\phalapi\notorm\src\NotORM\Result.php(859): NotORM_Result->execute()
+#2 D:\web\PHPTutorial\WWW\api\vendor\phalapi\kernal\src\Model\NotORMModel.php(31): NotORM_Result->fetch()
+#3 D:\web\PHPTutorial\WWW\api\src\app\Domain\Power.php(46): PhalApi\Model\NotORMModel->get(1)
+#4 D:\web\PHPTutorial\WWW\api\src\app\Api\Power.php(106): App\Domain\Power->get_upd(1)
+#5 [internal function]: App\Api\Power->get_upd()
+#6 D:\web\PHPTutorial\WWW\api\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#7 D:\web\PHPTutorial\WWW\api\public\index.php(9): PhalApi\PhalApi->response()
+#8 {main}
+2018-12-29 10:30:58|ERROR|App.Role.Get_role|PDOException: Unknown column 'id' in 'where clause' in D:\web\PHPTutorial\WWW\api\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 D:\web\PHPTutorial\WWW\api\vendor\phalapi\notorm\src\NotORM\Result.php(813): NotORM_Result->query('SELECT * FROM k...', Array)
+#1 D:\web\PHPTutorial\WWW\api\vendor\phalapi\notorm\src\NotORM\Result.php(898): NotORM_Result->execute()
+#2 D:\web\PHPTutorial\WWW\api\src\app\Model\Role.php(23): NotORM_Result->fetchAll()
+#3 D:\web\PHPTutorial\WWW\api\src\app\Domain\Role.php(25): App\Model\Role->get_role(Array)
+#4 D:\web\PHPTutorial\WWW\api\src\app\Api\Role.php(83): App\Domain\Role->get_role(Array)
+#5 [internal function]: App\Api\role->get_role()
+#6 D:\web\PHPTutorial\WWW\api\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#7 D:\web\PHPTutorial\WWW\api\public\index.php(9): PhalApi\PhalApi->response()
+#8 {main}

@@ -1,0 +1,20 @@
+<?php 
+namespace App\Model;
+
+use PhalApi\Model\NotORMModel as NotORM;
+
+class Power extends NotORM {
+    //获取表名
+    protected function getTableName($id)
+    {
+        return "kaoqin_power";
+    }
+
+    //查询该用户权限
+    public function get_power($uid){
+        $sql="select * from kaoqin_power where (power_id in (select power_id from kaoqin_role_power where (r_id in (select r_id from kaoqin_user_role where u_id=:id)))) ";
+        $params = array(':id' => $uid);
+        $data=$this->getORM()->queryAll($sql, $params);
+        return $data;
+    }
+}

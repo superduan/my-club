@@ -1,0 +1,14 @@
+<?php
+namespace App\Domain;
+
+use App\Model\Shifts as ModelShifts;
+
+class Shifts {
+    //请假申请
+    public function shifts_add($data)
+    {
+        $model = new ModelShifts;
+        $res = $model->shifts_add($data);
+        return $res;
+    }
+}

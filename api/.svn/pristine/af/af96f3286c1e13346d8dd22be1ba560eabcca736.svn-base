@@ -1,0 +1,20 @@
+<?php
+namespace App\Model;
+
+use PhalApi\Model\NotORMModel as NotORM;
+
+class UR extends NotORM {
+    //设置表名
+    protected function getTableName($id)
+    {
+        return "user_role";
+    }
+
+    //查询员工身份
+    public function  checkUser($u_id){
+        $res = $this->getORM()
+            ->where(['u_id',$u_id])
+            ->fetchOne();
+        return $res;
+    }
+}

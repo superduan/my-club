@@ -1,0 +1,165 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+use App\Domain\Power as DomainPower;
+/**
+ * 权限查询接口
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Power extends Api {
+    
+    public function getRules() {
+        return array(
+            'power'=>array(
+                'uid'   => array('name' => 'uid', 'require' => true, 'min' => 1, 'desc' => '用户id','type'=>'int'),
+            ),
+            'power_add'=>array(
+                'power_name'    =>  array('name'=>'power_name','require'=>true,'format' => 'utf8','min'=>1,'max'=>'6','desc'=>'权限名','source' => 'post'),
+                'power_desc'    =>  array('name'=>'power_desc','require'=>true,'format' => 'utf8','min'=>1,'max'=>'30','desc'=>'权限描述','source' => 'post'),
+                'power_pid'     =>  array('name'=>'power_pid','require'=>true,'min'=>1,'max'=>'5','desc'=>'父id','source' => 'post'),
+                'controller'    =>  array('name'=>'controller','require'=>true,'min'=>1,'max'=>'15','desc'=>'控制器名','source' => 'post'),
+                'action'        =>  array('name'=>'action','require'=>true,'min'=>1,'max'=>'15','desc'=>'方法名','source' => 'post'),
+                'level'         =>  array('name'=>'level','require'=>true,'min'=>1,'max'=>'6','desc'=>'等级','source' => 'post'),
+            ),
+            'del_power'=>array(
+                'power_id'   => array('name' => 'power_id', 'require' => true,'format'=>'explode', 'desc' => '权限id(可用逗号隔开多个值)','type'=>'array'),
+            ),
+            'get_upd'=>array(
+                'upd_id'   => array('name' => 'upd_id', 'require' => true, 'min' => 1, 'desc' => '要修改的权限id','type'=>'int'),
+            ),
+            'upd_power'=>array(
+                'upd_id'        =>  array('name' => 'upd_id', 'require' =>true, 'min' => 1, 'desc' => '要修改的权限id','type'=>'int','source' => 'post'),
+                'power_name'    =>  array('name'=>'power_name','format' => 'utf8','min'=>1,'max'=>'6','desc'=>'权限名','source' => 'post','default'=>''),
+                'power_desc'    =>  array('name'=>'power_desc','format' => 'utf8','min'=>1,'max'=>'30','desc'=>'权限描述','source' => 'post','default'=>''),
+                'power_pid'     =>  array('name'=>'power_pid','min'=>1,'max'=>'5','desc'=>'父id','source' => 'post','default'=>''),
+                'controller'    =>  array('name'=>'controller','min'=>1,'max'=>'15','desc'=>'控制器名','source' => 'post','default'=>''),
+                'action'        =>  array('name'=>'action','min'=>1,'max'=>'15','desc'=>'方法名','source' => 'post','default'=>''),
+                'level'         =>  array('name'=>'level','min'=>1,'max'=>'6','desc'=>'等级','source' => 'post','default'=>''),
+            ),
+        );
+    }
+
+    /**
+     * 获取用户权限列表
+     * @desc 获取用户权限列表
+     * @return json reg 返回该用户拥有的权限
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+
+    public function power()
+    {
+        $uid=$this->uid;
+        $dn=new DomainPower();
+        $reg=$dn->get_power($uid);
+        return $reg;
+    }
+
+     /**
+     * 添加权限
+     * @desc 添加权限
+     * @return int reg 添加成功的id
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     * @exception 409 权限不唯一
+     */
+
+    public function power_add()
+    {
+        //插入的数据
+        $arr=array(
+            'power_name'=>$this->power_name,
+            'power_desc'=>$this->power_desc,
+            'power_pid'=>$this->power_pid,
+            'controller'=>$this->controller,
+            'action'=>$this->action,
+            'level'=>$this->level
+        );
+        $power_name=$arr['power_name'];
+        $dn=new DomainPower();
+        $check_name=$dn->check_name($power_name);
+        if($check_name){
+            throw new BadRequestException('当前权限已经存在，换一个试试',9);
+            die;
+        }
+        $reg=$dn->add_power($arr);
+        return $reg;
+    }
+
+    /**
+     * 删除权限
+     * @desc 删除权限
+     * @return int 状态码 删除成功状态码
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+    
+    public function del_power()
+    {
+        $power_id=$this->power_id;
+        $dn=new DomainPower();
+        $reg=$dn->del_power($power_id);
+        return $reg;
+    }
+
+    /**
+     * 获取要修改的权限
+     * @desc 获取要修改的权限
+     * @return array data 要修改的权限数据
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     * @exception 408 没有数据
+     */
+
+    public function get_upd()
+    {
+        $upd_id=$this->upd_id;
+        $dn=new DomainPower();
+        $reg=$dn->get_upd($upd_id);
+        if (!$reg) {
+            throw new BadRequestException('请您联系管理员核查数据',8);
+        }
+        return $reg;
+    }
+
+    /**
+     * 修改权限
+     * @desc 修改权限
+     * @return int reg 修改成功的影响行数
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+     public function upd_power()
+     {
+        //修改数据
+        $id=$this->upd_id;
+        $arr=array(
+            'power_name'=>$this->power_name,
+            'power_desc'=>$this->power_desc,
+            'power_pid'=>$this->power_pid,
+            'controller'=>$this->controller,
+            'action'=>$this->action,
+            'level'=>$this->level
+        );
+        $dn=new DomainPower();
+        $reg=$dn->upd_power($id,$arr);
+        return $reg;
+     }
+      /**
+     * 权限列表
+     * @desc 权限列表
+     * @return int reg 权限列表
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+     public function power_list()
+     {
+        $dn=new DomainPower();
+        $power=$dn->power();
+        return $power;
+     }
+}

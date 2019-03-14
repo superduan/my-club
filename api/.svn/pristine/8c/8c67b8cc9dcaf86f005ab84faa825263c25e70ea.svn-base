@@ -1,0 +1,35 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 微信开发接口
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Wechat extends Api
+{
+    public function index()
+    {
+        $token=\PhalApi\DI()->config->get('app.wechat.token');
+        //接收微信服务器传来的值
+        $signature=$_GET["signature"];
+        $timestamp=$_GET["timestamp"];
+        $nonce=$_GET["nonce"];
+        $echostr=$_GET["echostr"];
+        //按照微信平台方法运算
+        $tmpArr = array($timestamp,$token, $nonce);
+        sort($tmpArr, SORT_STRING);
+        $tmpStr = implode( $tmpArr );
+        $tmpStr = sha1( $tmpStr );
+        file_put_contents('1.txt',1111);
+        if( $signature==$tmpStr ){
+            echo $echostr;
+        }else{
+            echo $echostr;
+            // return false;
+        }
+    }
+}

@@ -1,0 +1,75 @@
+<?php
+namespace App\Model;
+
+use PhalApi\Model\NotORMModel as NotORM;
+
+class User extends NotORM {
+    //设置表名
+    protected function getTableName($id)
+    {
+        return "user";
+    }
+
+    //通过部门id获取成员
+    public function getInfoBySectionId($id,$page,$size){
+        $where = [];
+        if(!empty($id)){
+            $where = ['section_id'=>$id];
+        }
+        $res = $this->getORM()
+            ->select('id','name','section_id','sex','job_number')
+            ->where($where)
+            ->limit(($page-1)*$size,$size)
+            ->fetchAll();
+        return $res;
+    }
+
+    //通过部门id获取成员
+    public function getInfoTotal($id){
+        $where = [];
+        if(!empty($id)){
+            $where = ['section_id'=>$id];
+        }
+        $res = $this->getORM()
+            ->where($where)
+            ->count();
+        return $res;
+    }
+
+    //验证员工手机号
+    public function checkPhone($phone){
+        $res = $this->getORM()
+            ->where(['phone'=>$phone])
+            ->select('id')
+            ->fetchOne();
+        return $res;
+    }
+
+    //查询员工列表
+    public function getUserItems($page,$size,$select){
+        $res = $this->getORM()
+            ->select($select)
+            ->limit(($page-1)*$size,$size)
+            ->fetchAll();
+        return $res;
+    }
+
+    //查询员工列表总数
+    public function getUserTotal(){
+        $res = $this->getORM()
+            ->count();
+        return $res;
+    }
+
+    //员工信息
+    public function selectInfo(){
+        $sql = "select 
+        kaoqin_user.id,kaoqin_user.name,
+        kaoqin_section.id as section_id,kaoqin_section.name as section_name,kaoqin_role.role_id,kaoqin_role.role_name,kaoqin_user.job_number
+        from kaoqin_user 
+        INNER JOIN kaoqin_role on kaoqin_user.r_id = kaoqin_role.role_id
+        INNER JOIN kaoqin_section on kaoqin_user.section_id = kaoqin_section.id";
+        $result = $this->getORM()->queryAll($sql,[]);
+        return $result;
+    }
+}

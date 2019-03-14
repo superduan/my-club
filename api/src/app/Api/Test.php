@@ -1,0 +1,18 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 测试接口
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+class Test extends Api
+{
+    public function test()
+    {
+        $manager = new \MongoDB\Driver\Manager("mongodb://localhost:27017");
+        print_r($manager);
+    }
+}

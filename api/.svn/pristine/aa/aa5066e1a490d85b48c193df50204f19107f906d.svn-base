@@ -1,0 +1,40 @@
+<?php
+namespace App\Domain;
+
+use App\Model\UR as ModelUR;
+use PhalApi\Exception\BadRequestException;
+
+
+class UR {
+    //添加入库
+    public function addData($u_id,$r_id){
+        $data = [
+            'u_id'=>$u_id,
+            'r_id'=>$r_id,
+        ];
+        $model = new ModelUR;
+        $res = $model->insert($data);
+        return $res;
+    }
+
+    //验证员工身份
+    public function checkUser($u_id){
+        $model = new ModelUR;
+        $res = $model->checkUser($u_id);
+        return $res;
+    }
+
+    //角色删除
+    public function del($id){
+        $model = new ModelUR;
+        $res = $model->del($id);
+        return $res;
+    }
+
+    //通过id更新数据
+    public function updateData($data){
+        $model = new ModelUR;
+        $res = $model->updateData($data);
+        return $res;
+    }
+}

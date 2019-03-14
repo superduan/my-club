@@ -1,0 +1,97 @@
+<?php
+namespace App\Model;
+
+use PhalApi\Model\NotORMModel as NotORM;
+
+
+class CheckWork extends NotORM {
+    //设置表名
+    protected function getTableName($id)
+    {
+        return "check_work";
+    }
+
+    //查询签到列表
+    public function findInfoItems($data){
+        $res = $this->getORM()
+            ->select($data['select'])
+            ->where($data['where'])
+            ->limit(($data['page']-1)*$data['size'],$data['size'])
+            ->order('id desc')
+            ->fetchAll();
+        return $res;
+    }
+
+    //查询签到列表总数
+    public function findInfoTotal($data){
+        $res = $this->getORM()
+            ->where($data['where'])
+            ->count();
+        return $res;
+    }
+
+    //查询签到大概
+    public function getInfoItems($data){
+        $sql = "select kaoqin_section.name as section_name,kaoqin_role.role_name,kaoqin_check_work.id,kaoqin_check_work.job_number,kaoqin_check_work.name,date_format(dateline,'%Y-%m') as  dat,kaoqin_check_work.section_id  from kaoqin_check_work"
+        . " INNER JOIN kaoqin_user on kaoqin_check_work.job_number = kaoqin_user.job_number"
+        . " INNER JOIN kaoqin_role on kaoqin_user.r_id = kaoqin_role.role_id"
+        . " INNER JOIN kaoqin_section on kaoqin_check_work.section_id = kaoqin_section.id"
+        . " where type = :type GROUP BY dat,kaoqin_check_work.job_number having 1=1 ";
+        if(!empty($data['dateline'])){
+            $sql .= " and dat = :dat";
+        }
+        if(!empty($data['name'])){
+            $sql .= " and name = :name";
+        }
+        $sql .= " limit ".($data['page']-1)*$data['size'].",$data[size]";
+        $res = $this->getORM()->queryAll($sql,[
+            ':type'=>$data['type'],
+            ':dat'=>$data['dateline'],
+            ':name'=>$data['name'],
+        ]);
+        return $res;
+    }
+
+    //签到各状态
+    public function getInfoDatail($job_number,$dat,$section_id){
+        $sql = "select section_id,job_number,sign_status,date_format(dateline,'%Y-%m') as  dat ,count(sign_status) from kaoqin_check_work GROUP BY job_number,dat,sign_status HAVING job_number = :job_number and dat = :dat and section_id = :section_id";
+        $res = $this->getORM()->queryAll($sql,[
+            ':job_number' =>$job_number,
+            ':dat' =>$dat,
+            ':section_id' =>$section_id,
+        ]);
+        return $res;
+    }
+
+    //签到大概总条数
+    public function getInfoTotol($data){
+        $sql = "select kaoqin_section.name as section_name,kaoqin_role.role_name,kaoqin_check_work.id,kaoqin_check_work.job_number,kaoqin_check_work.name,date_format(dateline,'%Y-%m') as  dat,kaoqin_check_work.section_id  from kaoqin_check_work"
+        . " INNER JOIN kaoqin_user on kaoqin_check_work.job_number = kaoqin_user.job_number"
+        . " INNER JOIN kaoqin_role on kaoqin_user.r_id = kaoqin_role.role_id"
+        . " INNER JOIN kaoqin_section on kaoqin_check_work.section_id = kaoqin_section.id"
+        . " where type = :type GROUP BY dat,kaoqin_check_work.job_number";
+        // $sql = "select * from kaoqin_check_work group by job_number";
+        if(!empty($data['dateline'])){  
+            $sql .= " and dat = :dat";
+        }
+        if(!empty($data['name'])){
+            $sql .= " and name = :name";
+        }
+        $res = $this->getORM()->queryAll($sql,[
+            ':type'=>$data['type'],
+            ':dat'=>$data['dateline'],
+            ':name'=>$data['name'],
+        ]);
+        return $res;
+    }
+
+    //查询是否签到
+    public function findWork($data){
+        $res = $this->getORM()
+            ->where('job_number',$data['job_number'])
+            ->where('sign_time >=?',$data['start_time'])
+            ->where('sign_time <=?',$data['end_time'])
+            ->fetch();
+        return $res;
+    }
+}

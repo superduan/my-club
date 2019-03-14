@@ -1,0 +1,104 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 位置判断
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Position extends Api
+{
+    private static $lng1="116.293365";
+    private static $lat1="40.040108";
+    //接值
+    public function getRules()
+    {
+        return array(
+            'work' => array(
+                'latitude' => array('name' => 'Latitude', 'require' => true,  'desc' => '纬度', 'type' => 'string', 'source' => 'post'),
+                'longitude' => array('name' => 'Longitude', 'require' => true,  'desc' => '经度', 'type' => 'string', 'source' => 'post'),
+            ),
+            'night' => array(
+                'latitude' => array('name' => 'Latitude', 'require' => true,  'desc' => '纬度', 'type' => 'string', 'source' => 'post'),
+                'longitude' => array('name' => 'Longitude', 'require' => true,  'desc' => '经度', 'type' => 'string', 'source' => 'post'),
+            ),
+        );
+    }
+    //白班打卡
+    public function work()
+    {
+        $lat1=self::$lat1;
+        $lat2=$this->latitude;
+        $lng1=self::$lng1;
+        $lng2=$this->longitude;
+        $res=$this->distance($lng1,$lat1,$lng2,$lat2);
+        if ($res>0.1) {
+            return "签到失败,请您前往公司50米内打卡";
+        }
+        $data=date("Y-m-d",time());
+        $day=date("w",strtotime($data));
+        $url="http://works.ljdhz.com/?service=App.User.UpdateOpen";
+    }
+    //夜班打卡
+    public function night()
+    {
+        $lat1=self::$lat1;
+        $lat2=$this->latitude;
+        $lng1=self::$lng1;
+        $lng2=$this->longitude;
+        $res=$this->distance($lng1,$lat1,$lng2,$lat2);
+        if ($res>0.1) {
+            return "签到失败,请您前往公司50米内打卡";
+        }
+    }
+    //根据经纬度计算距离
+    private function distance($lng1,$lat1,$lng2,$lat2)
+    {
+        //将角度转为弧度
+        $radLat1=deg2rad($lat1);
+        $radLat2=deg2rad($lat2);
+        $radLng1=deg2rad($lng1);
+        $radLng2=deg2rad($lng2);
+        $a=$radLat1-$radLat2;//两纬度之差,纬度<90
+        $b=$radLng1-$radLng2;//两经度之差纬度<180
+        $s=2*asin(sqrt(pow(sin($a/2),2)+cos($radLat1)*cos($radLat2)*pow(sin($b/2),2)))*6378.137;
+        return $s;
+    }
+    //计算当前时间是否在打卡范围内
+    function get_curr_time_section()
+    {
+        $checkDayStr = date('Y-m-d ',time());
+        $timeBegin1 = strtotime($checkDayStr."09:00".":00");
+        $timeEnd1 = strtotime($checkDayStr."18:00".":00");
+    
+        $curr_time = time();
+    
+        if($curr_time >= $timeBegin1 && $curr_time <= $timeEnd1)
+        {
+            return 0;
+        }
+        
+        return -1;
+    }
+     //curl函数
+     public function curl($url, $data = null)
+     {
+         $init = curl_init();
+         curl_setopt($init, CURLOPT_URL, $url);
+         curl_setopt($init, CURLOPT_RETURNTRANSFER, 1);
+         curl_setopt($init, CURLOPT_SSL_VERIFYPEER, false);
+         curl_setopt($init, CURLOPT_SSL_VERIFYHOST, false);
+ 
+         if ($data) {
+             curl_setopt($init, CURLOPT_POST, true);
+             curl_setopt($init, CURLOPT_POSTFIELDS, $data);
+         }
+         $result = curl_exec($init);
+         curl_close($init);
+         return $result;
+     }
+
+}

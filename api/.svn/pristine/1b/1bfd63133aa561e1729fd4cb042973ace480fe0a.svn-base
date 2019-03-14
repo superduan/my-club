@@ -1,0 +1,51 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use PhalApi\Exception\BadRequestException;
+use App\Domain\Leave as DomainLeave;
+/**
+ * 分配权限接口
+ *
+ * @author: dogstar <chanzonghuang@gmail.com> 2014-10-04
+ */
+
+class Leave extends Api
+{
+    public function getRules()
+    {
+        return array(
+            'leave' => array(
+                'app_user' => array('name' => 'app_user','format' => 'utf8','desc'=>'角色名','require' => true,  'source' => 'post'),
+                'section_id' => array('name' => 'section_id', 'require' => true,  'desc' => '部门id','min'=>1, 'type' => 'int', 'source' => 'post'),
+                'start_time'=>array('name'=>'start_time','desc'=>'开始时间','require'=>true,'type'=>'date','source' => 'post'),
+                'end_time'=>array('name'=>'end_time','desc'=>'结束时间','require'=>true,'type'=>'date','source' => 'post'),
+                'user_id'=> array('name' => 'user_id', 'require' => true,  'desc' => '用户id','min'=>1,'type' => 'int', 'source' => 'post'),
+            ),
+        );
+    }
+
+    /**
+     * 请假申请
+     * @desc 请假申请
+     * @return jsonp success ok
+     * @exception 401 参数传递错误
+     * @exception 400 缺少参数
+     */
+
+    public function leave()
+    {
+        $data=array(
+            'app_user'=>$this->app_user,
+            'section_id'=>$this->section_id,
+            'start_time'=>$this->start_time,
+            'end_time'=>$this->end_time,
+            'user_id'=>$this->user_id,
+            'app_time'=>time(),
+        );
+        $dn = new DomainLeave();
+        $res = $dn->app($data);
+        return $res;
+    }
+
+}

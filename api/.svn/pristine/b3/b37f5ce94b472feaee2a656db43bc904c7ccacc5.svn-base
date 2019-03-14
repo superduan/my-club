@@ -1,0 +1,12 @@
+2018-12-28 17:25:02|ERROR|App.Section.GetSection|PDOException: Unknown column 'page' in 'where clause' in D:\Demo\kaoqinapi\vendor\phalapi\notorm\src\NotORM\Result.php:264
+Stack trace:
+#0 D:\Demo\kaoqinapi\vendor\phalapi\notorm\src\NotORM\Result.php(813): NotORM_Result->query('SELECT * FROM k...', Array)
+#1 D:\Demo\kaoqinapi\vendor\phalapi\notorm\src\NotORM\Result.php(898): NotORM_Result->execute()
+#2 D:\Demo\kaoqinapi\src\app\Model\Section.php(24): NotORM_Result->fetchAll()
+#3 D:\Demo\kaoqinapi\src\app\Domain\Section.php(35): App\Model\Section->getSectionItems(Array)
+#4 D:\Demo\kaoqinapi\src\app\Api\Section.php(78): App\Domain\Section->getSection(1, 5)
+#5 [internal function]: App\Api\Section->getSection()
+#6 D:\Demo\kaoqinapi\vendor\phalapi\kernal\src\PhalApi.php(53): call_user_func(Array)
+#7 D:\Demo\kaoqinapi\public\index.php(9): PhalApi\PhalApi->response()
+#8 {main}
+2018-12-28 18:47:47|DEBUG|Wrong Sign|{"needSign":"d0b8fdbbeabada78a43554f6b669ebad"}

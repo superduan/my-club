@@ -1,0 +1,135 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use App\Domain\Menu as DomainMenu;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 菜单接口
+ */
+class Menu extends Api
+{
+    public function getRules()
+    {
+        return [
+            'add' => [
+                'name' => ['name' => 'name', 'type' => 'string','require' => true, 'min' => 1, 'max' => 50, 'desc' => '名称', 'source' => 'post'],
+                'type' => ['name' => 'type', 'type' => 'enum','require' => true, 'range'=>['click','view'], 'desc' => '按钮类型', 'source' => 'post'],
+                'url' => ['name' => 'url', 'type' => 'string', 'desc' => '链接地址', 'source' => 'post'],
+                'key' => ['name' => 'key', 'type' => 'string', 'desc' => 'key', 'source' => 'post'],
+                'pid' => ['name' => 'pid', 'type' => 'int','min' => 0,'require'=>true,  'desc' => '父级id', 'source' => 'post'],
+            ],
+            'getInfo' => [
+                'type' => ['name' => 'type', 'type' => 'string', 'min' => 1, 'desc' => '类型'],
+            ],
+            'del' => [
+                'id' => ['name' => 'id', 'type' => 'array', 'require' => true, 'format' => 'explode', 'min' => 1, 'desc' => '菜单id(可传多个值","相隔)']
+            ],
+            'updateData' => [
+                'id' => ['name' => 'id', 'type' => 'int','require'=>true,'min' => 1, 'desc' => '菜单id'],
+                'name' => ['name' => 'name', 'type' => 'string', 'min' => 1, 'max' => 50, 'desc' => '名称', 'source' => 'post'],
+                'type' => ['name' => 'type', 'type' => 'enum', 'range'=>['click','view'], 'desc' => '按钮类型', 'source' => 'post'],
+                'url' => ['name' => 'url', 'type' => 'string', 'desc' => '链接地址', 'source' => 'post'],
+                'key' => ['name' => 'key', 'type' => 'string', 'desc' => 'key', 'source' => 'post'],
+                'pid' => ['name' => 'pid', 'type' => 'int','min' => 0,'desc' => '父级id', 'source' => 'post'],
+            ],
+            'getOne' => [
+                'id' => ['name' => 'id', 'type' => 'int', 'require' => true,'min' => 1, 'desc' => '菜单id']
+            ],
+        ];
+    }
+
+    /**
+     * 菜单添加
+     * @desc传递数据 添加入库返回自增id
+     * @return int id 自增id
+     * @return string msg 描述
+     */
+    public function add()
+    {
+        $data = [
+            'name'=>$this->name,
+            'type'=>$this->type,
+            'url'=>$this->url,
+            'key'=>$this->key,
+            'pid'=>"$this->pid",
+        ];
+        //D层
+        $domain = new DomainMenu;
+        $res['id'] = $domain->addData($data);
+        $res['msg'] = '添加成功';
+        return $res;
+    }
+
+    /**
+     * 获取菜单列表
+     * @desc传递分页参数获取员工列表
+     *
+     * @return array items 菜单基本信息
+     * @return int total 菜单总数
+     */
+    public function getInfo()
+    {
+        $domain = new DomainMenu;
+        $res = $domain->getInfo($this->type);
+        return $res;
+    }
+
+    /**
+     * 菜单删除
+     * @desc 通过id删除数据
+     *
+     * @return int total 删除总条数
+     * @return string msg 描述
+     * @exception 402 操作失败
+     */
+    public function del()
+    {
+        $domain = new DomainMenu;
+        $res = $domain->del($this->id);
+        if ($res == 0) {
+            throw new BadRequestException('操作失败', 2);
+        }
+        $rs['total'] = $res;
+        $rs['msg'] = '删除成功';
+        return $rs;
+    }
+
+    /**
+     * 菜单修改
+     * @desc 传员工id和需修改的值完成修改
+     * @return int total 影响数
+     * @return string msg 描述
+     * @exception 402 操作失败
+     */
+    public function updateData()
+    {
+        $data = [
+            'name'=>$this->name,
+            'type'=>$this->type,
+            'url'=>$this->url,
+            'key'=>$this->key,
+            'pid'=>"$this->pid",
+        ];
+        $domain = new DomainMenu;
+        $res = $domain->updateData($this->id,$data);
+        if ($res == 0) {
+            throw new BadRequestException('操作失败', 2);
+        }
+        $rs['total'] = $res;
+        $rs['msg'] = '成功';
+        return $rs;
+    }
+
+    /**
+     *  获取单条信息
+     * @desc 传id返回信息
+     *
+     * @return void
+     */
+    public function getOne(){
+        $domain = new DomainMenu;
+        $res = $domain->getOne($this->id);
+        return $res;
+    }
+}

@@ -1,0 +1,109 @@
+<?php
+namespace App\Api;
+
+use PhalApi\Api;
+use App\Domain\UR as DomainUR;
+use PhalApi\Exception\BadRequestException;
+/**
+ * 用户&&角色接口
+ */
+class UR extends Api
+{
+    public function getRules()
+    {
+        return [
+            'add' => [
+                'u_id' => ['name' => 'u_id', 'type' => 'int','require' => true, 'min' => 1,'desc' => '员工id', 'source' => 'post'],
+                'r_id' => ['name' => 'r_id', 'type' => 'int', 'require' => true, 'min' => 1,'desc' => '角色id', 'source' => 'post'],
+            ],
+            'checkUser' => [
+                'u_id' => ['name' => 'u_id', 'type' => 'int','require' => true, 'min' => 1,'desc' => '员工id'],
+            ],
+            'del' => [
+                'u_id' => ['name' => 'u_id', 'type' => 'int','require' => true, 'min' => 1,'desc' => '员工id'],
+            ],
+            'updateData' => [
+                'u_id' => ['name' => 'u_id', 'type' => 'int','require' => true, 'min' => 1,'desc' => '员工id', 'source' => 'post'],
+                'r_id' => ['name' => 'r_id', 'type' => 'int', 'require' => true, 'min' => 1,'desc' => '角色id', 'source' => 'post'],
+            ]
+        ];
+    }
+
+    /**
+     * 员工分配角色
+     * @desc传递数据 添加入库
+     * @return int id 0成功
+     * @return string msg 描述
+     */
+    public function add()
+    {
+        //D层
+        $domain = new DomainUR;
+        $res['id'] = $domain->addData($this->u_id, $this->r_id);
+        $res['msg'] = '添加成功';
+        return $res;
+    }
+
+    /**
+     * 验证员工是否有角色
+     * @desc员工角色查询数据库是否存在
+     * @return int code 是否存在
+     * @return string desc 描述
+     */
+    public function checkUser()
+    {
+        $domain = new DomainUR;
+        $res = $domain->checkUser($this->u_id);
+        if($res){
+            $data['code'] = 1;
+            $data['msg'] = '已有身份';
+        }else{
+            $data['code'] = 0;
+            $data['msg'] = '没有身份';
+        }
+        return $data;
+    }
+
+    /**
+     * 角色删除
+     * @desc 通过u_id删除数据
+     *
+     * @return int total 删除总条数
+     * @return string msg 描述
+     * @exception 402 操作失败
+     */
+    public function del()
+    {
+        $domain = new DomainUR;
+        $res = $domain->del($this->u_id);
+        if ($res == 0) {
+            throw new BadRequestException('操作失败', 2);
+        }
+        $rs['total'] = $res;
+        $rs['msg'] = '删除成功';
+        return $rs;
+    }
+
+    /**
+     * 角色修改
+     * @desc 传角色id和需修改的值完成修改
+     * @return int total 影响数
+     * @return string msg 描述
+     * @exception 402 操作失败
+     */
+    public function updateData()
+    {
+        $data = [
+            'u_id' =>$this->u_id,
+            'r_id' =>$this->r_id,
+        ];
+        $domain = new DomainUR;
+        $res = $domain->updateData($data);
+        if ($res == 0) {
+            throw new BadRequestException('操作失败', 2);
+        }
+        $rs['total'] = $res;
+        $rs['msg'] = '成功';
+        return $rs;
+    }
+}

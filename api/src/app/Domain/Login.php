@@ -1,0 +1,28 @@
+<?php
+namespace App\Domain;
+
+use App\Model\Login as ModelLogin;
+
+class Login {
+    //查询名和密码
+    public function checkNamePwd($data){
+        //模型
+        $model = new ModelLogin;
+        $res = $model->checkNamePwd($data);
+        return $res;
+    }
+    //获取信息
+    public function getInfo($data){
+        //模型
+        $model = new ModelLogin;
+        $res = $model->getInfo($data);
+        return $res;
+    }
+
+    //获取信息
+    public function getInfoByOpen($data){
+        $model = new ModelLogin;
+        $res = $model->getInfoByOpen($data);
+        return $res;
+    }
+}
